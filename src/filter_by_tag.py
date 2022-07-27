@@ -31,9 +31,7 @@ def filter_by_tag(entries, options_map, config_str):
     tags_ex = set([t.strip() for t in tags_ex.split(',') if t.strip()]) if tags_ex else set()
     #
     def tag_check(entry):
-        if not isinstance(entry,data.Transaction):
-            return True
-        elif not entry.tags:
+        if not entry.tags:
             if not tags_in:
                 return True
             else:
