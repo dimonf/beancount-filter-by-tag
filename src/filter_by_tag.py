@@ -17,6 +17,8 @@ __plugins__ = ('filter_by_tag',)
 from beancount.core  import data
 from beancount.parser import options
 
+_DEBUG = False
+
 def filter_by_tag(entries, options_map, config_str):
     tags = eval(config_str, {}, {})
     if not isinstance(tags, dict):
@@ -28,9 +30,14 @@ def filter_by_tag(entries, options_map, config_str):
     tags_ex = set([t.strip() for t in tags_ex.split(',') if t.strip()]) if tags_ex else set()
     #
     def tag_check(entry):
+
         if not isinstance(entry, data.Transaction):
             return True
-        elif not entry.tags:
+
+        if _DEBUG:
+            print({'tags_in':tags_in,'tags_ex':tags_ex,'entry.tags':entry.tags} )
+
+        if not entry.tags:
             if not tags_in:
                 return True
             else:
