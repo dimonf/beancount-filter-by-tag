@@ -11,7 +11,7 @@ class TestFilterByTag(cmptest.TestCase):
     @loader.load_doc()
     def test_filter_by_tag(self, entries, errors, __):
         """
-           plugin "beancount_filter_by_tag" "{'include':'budget,capital', 'exclude':'trading,commercial'}"
+           plugin "beancount_filter_by_tag.filter_by_tag" "{'include':'budget,capital', 'exclude':'trading,commercial'}"
 
            2021-01-12 open Expenses:Administrative
            2021-01-13 open Assets:Bank
@@ -41,10 +41,6 @@ class TestFilterByTag(cmptest.TestCase):
                  Expenses:Administrative         15.44 EUR
                  Assets:Bank                    -15.44 EUR
 
-           2022-06-12 * "This should be excluded" #budget #trading
-                id: 443
-                Expenses:Administrative         19.01 EUR
-                Assets:Bank                      -19.01 EUR
         """, entries)
 if __name__ == "__main__":
     unittest.main()

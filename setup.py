@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 requirements = ["beancount"]
 
 setuptools.setup(
-        name="beancount-filter-by-tag",
+        name="beancount_filter_by_tag",
         version="0.0.1",
         author="Dmitri Kourbatsky",
         author_email="camel109@gmail.com",
