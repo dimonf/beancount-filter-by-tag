@@ -1,24 +1,21 @@
-"""This plugin acts as filter on the ground of tag(s). Only transactions that
-satisfy criteria are included in bean query result. Plugin shall be activated
-in beancount source file like this:
+"""Filter transactions on tags
 
-plugin "beancount_filter_by_tag" "{'include':'budget', 'exclude':'trading'}"
+Select all transactions that:
+  - do not have tags, specified by 'exclude', and
+  - do have tags, specified by 'include'
 
-where 'include' specifies tags which must be present, while 'exclude' acts oposite.
-Both, 'include' and 'exclude' are optional; only one of them must be specified.
-All criteria are combined on AND logic. 'exclude' directive prevails over 'include'.
-A single tag or tags, separated by comma, can be specified, eg {'include':'tag_a,tag_b'}.
-Space-only (' ') and empty ('') tags, specified as arguments, are ignored.
+plugin "beancount_filter_by_tag" "{'include':'budget,capital', 'exclude':'trading,commercial'}"
+
+if no 'include' option is specified, than any transaction's tag is accepted, unless it is
+rejected by 'exclude' option. If a transaction has tags that specified in both, 'include' and 
+'exlude' options, than 'exclude' wins.
 """
 __copyright__ = "Copyright (C) Dmitri Kourbatsky"
 __license__ = "MIT License"
-
-
+__plugins__ = ('filter_by_tag',)
 
 from beancount.core  import data
 from beancount.parser import options
-
-__plugins__ = ('filter_by_tag',)
 
 def filter_by_tag(entries, options_map, config_str):
     tags = eval(config_str, {}, {})
@@ -31,19 +28,22 @@ def filter_by_tag(entries, options_map, config_str):
     tags_ex = set([t.strip() for t in tags_ex.split(',') if t.strip()]) if tags_ex else set()
     #
     def tag_check(entry):
-        if not entry.tags:
+        if not isinstance(entry, data.Transaction):
+            return True
+        elif not entry.tags:
             if not tags_in:
                 return True
             else:
                 return False
         else:
             entry_tags = set(entry.tags)
-            if tags_ex & entry_tags:
+            if tags_ex and (tags_ex & entry_tags):
                 return False
-            elif tags_in & entry_tags:
-                return True
+            elif tags_in: 
+                if not tags_in & entry_tags:
+                    return False
             else:
-                return False
+                return True
 
     filtered_entries = [entry for entry in entries if tag_check(entry)]
     return (filtered_entries, [])
